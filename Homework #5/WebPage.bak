@@ -1,0 +1,132 @@
+;the added functionality is that the image is linked too.  Also, there is a scrollbox for the posts and all the boxes have defaults
+
+#lang web-server/insta
+
+;able to do string input stuff
+(require mzlib/string)
+
+;a blog is a (make-blog posts)
+;where posts is a (listof post)
+(struct blog (posts) #:mutable)
+
+;and post is a (make-post function variable number)
+;where function is a string, variable is a string, number is a string
+(struct post (function value variable number symbolic numDeriv Def simplify))
+
+;sets path to current directory
+(static-files-path (current-directory))
+
+;include derivative.rkt
+(require "Derivatives.rkt")
+;(require "Derivatives_Unsimplified.rkt")
+
+;BLOG: blog
+;The initial BLOG
+(define BLOG
+  (blog
+   (list )))
+
+;blog-insert-post!: blog post -> void
+;consumes a blog and a post, adds the post at the top of the blog
+(define (blog-insert-post! a-blog a-post)
+  (set-blog-posts! a-blog
+     (cons a-post (blog-posts a-blog))))
+
+;start: request -> doesn't return
+;consumes a request and produces a page that displays
+;all of the web content
+(define (start request)
+  (render-blog-page request))
+
+
+;parse-post: binding -> post
+;extracts a post out of the bindings
+(define (parse-post bindings)
+  (define func (to-func(read-from-string (extract-binding/single 'function bindings))))
+  (post (extract-binding/single 'function bindings)
+        ;(extract-binding/single 'number bindings)
+        (extract-binding/single 'value bindings)
+        (extract-binding/single 'variable bindings)
+        (extract-binding/single 'number bindings)
+        ;"Nth Symbolic Derivative: "
+        (if (eq? (read-from-string (extract-binding/single 'simplify bindings)) 'yes )
+            (expr->string (nth-symderiv (read-from-string (extract-binding/single 'function bindings))
+                                        (read-from-string (extract-binding/single 'variable bindings))
+                                        (read-from-string (extract-binding/single 'number bindings))))
+            (expr->string (nth-symderivU (read-from-string (extract-binding/single 'function bindings))
+                                        (read-from-string (extract-binding/single 'variable bindings))
+                                        (read-from-string (extract-binding/single 'number bindings))))
+            )
+        ;"Evaluated Symbolic Derivative: "
+        (expr->string ((eval (symderiv2 (read-from-string (extract-binding/single 'function bindings))
+                                        (list (read-from-string (extract-binding/single 'variable bindings)))
+                                        (read-from-string (extract-binding/single 'number bindings)))
+                       env) (read-from-string (extract-binding/single 'value bindings))))
+        ;"Numerical Nth Derivative: "
+        (expr->string (nth-deriv func
+                                 (read-from-string (extract-binding/single 'value bindings))
+                                 (read-from-string (extract-binding/single 'number bindings))
+                                 ))
+        (extract-binding/single 'simplify bindings)
+))
+
+
+;((eval (symderiv qf) env) 1)
+
+;render-blog-page: request -> doesn't return
+;produces and html page of the content of the BLOG
+(define (render-blog-page request)
+  (define (response-generator make-url)
+    (response/xexpr
+     `(html (link ((rel "stylesheet")(href "/cssheet.css")(type "text/css"))) 
+            (head (title "Derivatives"))
+            (body
+             (h1 "Derivatives are Mysterious")
+             ;links to other websites
+             (a ((href "http://en.wikipedia.org/wiki/Derivative")) "Mystery link--")
+             (a ((href "http://www.npr.org/templates/story/story.php?storyId=124632317")) "--Mystery link--")
+             (a ((href "http://blog.modernmechanix.com/lewis-carroll-mathematician/")) "--Mystery link--")
+             (a ((href "http://a.parsons.edu/~joseph/k2/gameoflife/")) "--Mystery link")(br)(br)
+             ;generates image and links the image to a website
+             (div ((class "image")) (a ((href "http://poncelet.math.nthu.edu.tw/disk5/js/linkage/24.pdf")) (img ((src "/cat.jpg") (title "The proper order of things is often a mystery to me. You, too?") (height "300")))))(br)(br)
+             ;,(render-posts)
+             (form ((action
+                     ,(make-url insert-post-handler)))
+                   
+                   ;inputs
+                   "Function: "(input ((name "function") (value "(* x x)")))(br)
+                   "Variable: "(input ((name "variable") (value "x")))(br)
+                   "Derivative Number(>=0): "(input ((name "number") (value "1")))(br)
+                   "Value of Variable: "(input ((name "value")(value "1")))(br)
+                   "Simplify?: yes" (input ((name "simplify") (type "radio") (value "yes") (checked "true")))
+                               "no"  (input ((name "simplify") (type "radio") (value "no")))(br)
+                   (input ((type "submit"))) 
+                   )
+             ,(render-posts)
+             )) ))
+  (define (insert-post-handler request)
+    (blog-insert-post! BLOG (parse-post(request-bindings request)))
+    (render-blog-page request))
+  (send/suspend/dispatch response-generator))
+
+;render-post: post -> xexpr
+;consumes a post, produces and xexpr fragment of of the post
+(define (render-post a-post)
+  `(div ((class "post"))
+        (b "Original Function: " ,(post-function a-post))
+        (p "Variable: " ,(post-value a-post))
+        (p "Value of Variable: " ,(post-variable a-post))
+        (p "N: " ,(post-number a-post))
+        (p "Simplified: " ,(post-simplify a-post))
+        (p "Nth Symbolic Derivative: " ,(post-symbolic a-post))
+        (p "Evaluated Symbolic Derivative: " ,(post-numDeriv a-post))
+        (p "Numerical Nth Derivative: " ,(post-Def a-post))
+        ))
+
+;render-posts: -> xexpr
+;consumes a blog, produces an expr fragment
+;of all its posts
+(define (render-posts)
+  `(div ((class "posts"))
+        ,@(map render-post (blog-posts BLOG))))
+

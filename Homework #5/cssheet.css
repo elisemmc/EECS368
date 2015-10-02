@@ -1,0 +1,36 @@
+body {
+	font-family: "Ariel";
+    background-image: url("cat.gif");
+    background-repeat: repeat;
+    color: white;
+    text-align: center;
+}
+
+h1 {
+    font-size: 50px;
+    color: #009999;
+}
+
+a {
+	color: #b0c4de;
+}
+
+.image{
+	border: 10px ridge white;
+	margin: auto;
+	width: 450px;
+}
+
+.posts{
+	border-style: groove;
+	color: black;
+	margin: auto;
+	height: 270px;
+	width: 500px;
+	overflow: scroll;
+	background-color: #b0c4de;
+}
+
+.original-func{
+	font-weight: bold;
+}

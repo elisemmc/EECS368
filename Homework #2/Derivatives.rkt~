@@ -1,0 +1,96 @@
+;Elise McEllhiney
+;Homework #2
+;10/2/2014
+
+#lang racket
+
+(define-namespace-anchor a)
+(define env (namespace-anchor->namespace a))
+#|
+;function that runs the whole program
+(define (derivatives qfs)
+  (append-map(λ(qf)
+     (list
+         (deriv(eval qf env) 1)            ;definition evaluation at 1
+         ((eval(symderiv qf) env) 1)       ;symbolic evaluation at 1
+         (symderiv qf)                     ;symbolic function at x
+         ))qf))
+|#
+
+;derivative by definition
+(define (derivative f) (λ(x) (/ (- (f(+ x dx)) (f x)) dx)))
+(define dx 1/100)
+
+;define cube function to use for testing
+(define (cube x) (* x x x))
+
+;(define (symderiveat))
+
+(define y 43)
+;list of qfs given in class
+(define num        '(λ(x) 47))
+(define numc       '(λ(x) 2+3i))
+(define xbound     '(λ(x) x))
+(define yfree      '(λ(x) y));note y is free in y free so give it a value by defineing y to be 43 done above
+(define x+         '(λ(x) (+ x 3 x 5 x)))
+(define x+nil      '(λ(x) (+)))
+(define x-         '(λ(x) (- x 3 x 5 x)))
+(define x1-        '(λ(x) (- x)))
+(define x*         '(λ(x) (* x 3 x 5 x)))
+(define x*nil      '(λ(x) (*)))
+(define x/         '(λ(x) (/ x 3 x 5 x)))
+(define x1/        '(λ(x) (/ x)))
+(define xexp       '(λ(x) (exp x)))
+(define xlog       '(λ(x) (log x)))
+(define xexplog    '(λ(x) (exp (log x))))
+(define xlogexp    '(λ(x) (log (exp x))))
+(define xexpt      '(λ(x) (expt x 3)))
+(define xexpt2     '(λ(x) (expt 2 x)))
+(define xexpt3     '(λ(x) (expt x x)))
+(define xexpi      '(λ(x) (exp(* +i x))))
+(define xexpii     '(λ(x) (exp (* (expt -1 1/2) x))))
+(define xcos       '(λ(x) (+ (cos x)(* (expt -1 1/2) (sin x)))))
+(define xsin       '(λ(x) (log (sin x))))
+(define xtan       '(λ(x) (tan x)))
+(define xasin      '(λ(x) (asin (- x 1/2))))
+(define xacos      '(λ(x) (acos (- x 1/2))))
+(define xatan      '(λ(x) (atan x)))
+(define xabs       '(λ(x) (abs (- x 2))))
+(define archimedes '(λ(lat) (sin lat)))
+(define mercator   '(λ(lat) (log (+tan lat)(/ (cos lat)))))
+
+;list of qfs
+(define qfs (list
+             num
+             numc
+             xbound
+             yfree
+             x+
+             x+nil
+             x-
+             x1-
+             x*
+             x*nil
+             x/
+             x1/
+             xexp
+             xlog
+             xexplog
+             xlogexp
+             xexpt
+             xexpt2
+             xexpt3
+             xexpi
+             xexpii
+             xcox
+             xsin
+             xtan
+             xasin
+             xacos
+             xatan
+             xabs
+             archimedes
+             mercator))
+
+;runs the program for grading purposes
+;(derivatives qfs)

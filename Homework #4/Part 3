@@ -1,0 +1,166 @@
+3.
+
+(a.)
+(assert! (rule (append-to-form () ?y ?y)))
+(assert! (rule (append-to-form(?u . ?v) ?y (?u . ?z)) (append-to-form ?v ?y ?z)))
+(append-to-form (a b)(c d)(?z))
+(append-to-form (a b) ?y (a b c d))
+(append-to-form ?x ?y (a b c d))
+
+;;; Query input:
+(assert! (rule (append-to-form () ?y ?y)))
+(assert! (rule (append-to-form(?u . ?v) ?y (?u . ?z)) (append-to-form ?v ?y ?z)))
+(append-to-form (a b)(c d)(?z))
+(append-to-form (a b) ?y (a b c d))
+(append-to-form ?x ?y (a b c d))
+
+Assertion added to data base.
+
+;;; Query input:
+
+Assertion added to data base.
+
+;;; Query input:
+
+;;; Query results:
+
+;;; Query input:
+
+;;; Query results:
+(append-to-form (a b) (c d) (a b c d))
+
+;;; Query input:
+
+;;; Query results:
+(append-to-form (a b c d) () (a b c d))
+(append-to-form () (a b c d) (a b c d))
+(append-to-form (a) (b c d) (a b c d))
+(append-to-form (a b) (c d) (a b c d))
+(append-to-form (a b c) (d) (a b c d))
+
+***Switched the order of the rules
+(assert! (rule (append-to-form(?u . ?v) ?y (?u . ?z)) (append-to-form ?v ?y ?z)))
+(assert! (rule (append-to-form () ?y ?y)))
+(append-to-form (a b)(c d)(?z))
+(append-to-form (a b) ?y (a b c d))
+(append-to-form ?x ?y (a b c d))
+
+;;; Query input:
+(assert! (rule (append-to-form(?u . ?v) ?y (?u . ?z)) (append-to-form ?v ?y ?z)))
+(assert! (rule (append-to-form () ?y ?y)))
+(append-to-form (a b)(c d)(?z))
+(append-to-form (a b) ?y (a b c d))
+(append-to-form ?x ?y (a b c d))
+
+Assertion added to data base.
+
+;;; Query input:
+
+Assertion added to data base.
+
+;;; Query input:
+
+;;; Query results:
+
+;;; Query input:
+
+;;; Query results:
+(append-to-form (a b) (c d) (a b c d))
+
+;;; Query input:
+
+;;; Query results:
+(append-to-form () (a b c d) (a b c d))
+(append-to-form (a) (b c d) (a b c d))
+(append-to-form (a b) (c d) (a b c d))
+(append-to-form (a b c) (d) (a b c d))
+(append-to-form (a b c d) () (a b c d))
+
+***************************************
+(b.)
+The following rules implement a next-to relations that finds adjacent elements of a list:
+
+(assert! (rule (?x next-to ?y in (?x ?y . ?u))))
+(assert! (rule (?x next-to ?y in (?v . ?z)) (?x next-to ?y in ?z)))
+
+;;; Query input:
+(assert! (rule (?x next-to ?y in (?x ?y . ?u))))
+(assert! (rule (?x next-to ?y in (?v . ?z)) (?x next-to ?y in ?z)))
+
+Assertion added to data base.
+
+;;; Query input:
+
+Assertion added to data base.
+
+;;; Query input:
+(?x next-to ?y in (1 (2 3) 4))
+
+;;; Query results:
+((2 3) next-to 4 in (1 (2 3) 4))
+(1 next-to (2 3) in (1 (2 3) 4))
+
+;;; Query input:
+(?x next-to 1 in (2 1 3 1))
+
+;;; Query results:
+(3 next-to 1 in (2 1 3 1))
+(2 next-to 1 in (2 1 3 1))
+
+***************************************
+(c.) Rules
+Given the following assertions
+
+(assert! (rule (tree->list (?x . ?y) ?v ?a)
+           (and (tree->list ?x ?v ?u) (tree->list ?y ?u ?a))))
+(assert! (rule (tree->list ?s ?v ?a)
+           (and (Ap (?s) ?v ?a) (lisp-value symbol? ?s))))
+(assert! (rule (tree->list () ?v ?a) (Ap () ?v ?a)))
+(assert! (rule (tree->list ?t ?v) (tree->list ?t ?v ())))
+(assert! (rule (Ap (?xl) (?xl . ?l) ?l)))
+(assert! (rule (Ap () ?l ?l)))
+
+(tree->list (((a . b) . (c . d)) . (d .(e . f))) ?z)
+
+;;; Query input:
+(assert! (rule (tree->list (?x . ?y) ?v ?a)
+           (and (tree->list ?x ?v ?u) (tree->list ?y ?u ?a))))
+(assert! (rule (tree->list ?s ?v ?a)
+           (and (Ap (?s) ?v ?a) (lisp-value symbol? ?s))))
+
+(assert! (rule (tree->list ?s ?v ?a)
+           (and (Ap (?s) ?v ?a) (lisp-value number? ?s))))
+
+(assert! (rule (tree->list () ?v ?a) (Ap () ?v ?a)))
+(assert! (rule (tree->list ?t ?v) (tree->list ?t ?v ())))
+(assert! (rule (Ap (?xl) (?xl . ?l) ?l)))
+(assert! (rule (Ap () ?l ?l)))
+
+;;; Query input:
+(tree->list (((a . b) . (c . d)) . (d .(e . f))) ?z)
+
+;;; Query results:
+(tree->list (((a . b) c . d) d e . f) (a b c d d e f))
+
+;;; Query input:
+(tree->list (((a . 2) . (c . 4)) . (4 .(e . 6))) ?z)
+
+;;; Query results:
+(tree->list (((a . 2) c . 4) 4 e . 6) (a 2 c 4 4 e 6))
+
+Input
+
+(tree->list ?t ())
+
+** this returns forever because it is checking all possible empty trees.  Every brance can be empty, so it just continues to output different version of empty trees.  It returns all possible combinations of () () 
+
+(tree->list ?t (a))
+
+ ** this also returns infinitely because it is looking for all possible trees that contain one a.  This is all possible trees containing null values and an a therefore it generates a list with null values and one a value.
+
+ (tree->list ?t (a b))
+
+ ** this never returns.  Given list (a b) we want all poissible tree structures that match this list.  We cannot compare this because we have no way to break the list apart into its elements.
+
+
+

@@ -1,0 +1,50 @@
+4.
+
+(a.)
+;;; Query input:
+(and (supervisor ?x ?y)(not (job ?x (computer programmer))))
+
+;;; Query results:
+(and (supervisor (Aull DeWitt) (Warbucks Oliver)) (not (job (Aull DeWitt) (computer programmer))))
+(and (supervisor (Cratchet Robert) (Scrooge Eben)) (not (job (Cratchet Robert) (computer programmer))))
+(and (supervisor (Scrooge Eben) (Warbucks Oliver)) (not (job (Scrooge Eben) (computer programmer))))
+(and (supervisor (Bitdiddle Ben) (Warbucks Oliver)) (not (job (Bitdiddle Ben) (computer programmer))))
+(and (supervisor (Reasoner Louis) (Hacker Alyssa P)) (not (job (Reasoner Louis) (computer programmer))))
+(and (supervisor (Tweakit Lem E) (Bitdiddle Ben)) (not (job (Tweakit Lem E) (computer programmer))))
+
+;;; Query input:
+(and (not (job ?x (computer programmer))) (supervisor ?x ?y))
+
+;;; Query results:
+ 
+** It doesn't work because the not function is first.  This makes it so the ?x goes away since we get all the results that are not that（which turns out to not a list of everything, this becomes nothing).  So there are not ?x values to check the supervisor for.
+
+(b.)
+;;; Query input:
+(wheel ?who)
+
+;;; Query results:
+(wheel (Warbucks Oliver))
+(wheel (Warbucks Oliver))
+(wheel (Bitdiddle Ben))
+(wheel (Warbucks Oliver))
+(wheel (Warbucks Oliver))
+
+** It returns him four times because he is the supervisor over four different people who are themselves supervisors.  It returns him once for each different supervisor he supervises.
+
+(c.)
+;;; Query input:
+(assert!(rule(***outranked-by ?staff-person ?boss)
+  (or(supervisor ?staff-person ?boss)
+    (and(***outranked-by ?middle-manager ?boss)
+      (supervisor ?staff-person ?middle-manager)))))
+(***outranked-by (Bitdiddle Ben) ?who)
+
+Assertion added to data base.
+
+;;; Query input:
+
+;;; Query results:
+(***outranked-by (Bitdiddle Ben) (Warbucks Oliver))
+
+** This doesn't work because it calls the recursion first in the and statement.  This means it ends up eventually repeatedly calling itself and wont't ever exit.  it first checks for scenarios that are true for the left portion of the and and then filters those with the right portion.  this will obviously never finish since the left portion as it calls itself.  This will eventually get stuck in a loop.

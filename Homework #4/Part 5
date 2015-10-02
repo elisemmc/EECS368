@@ -1,0 +1,86 @@
+(assert! (rule (comma (<comma> . ?z) ?z (comma <comma>))))
+(assert! (rule (period (<period> . ?z) ?z (period <period>))))
+(assert! (rule (semicolon (<semicolon> . ?z) ?z (semicolon <semicolon>))))
+
+(assert! (rule (noun toves)))
+(assert! (rule (noun wabe)))
+(assert! (rule (noun borogoves)))
+(assert! (rule (noun raths)))
+(assert! (rule (verb gimble)))
+(assert! (rule (verb outgrabe)))
+(assert! (rule (verb gyre)))
+(assert! (rule (inverb were)))
+(assert! (rule (adj mimsy)))
+(assert! (rule (adj mome)))
+(assert! (rule (adj brillig)))
+(assert! (rule (adj slithy)))
+(assert! (rule (adv All)))
+(assert! (rule (conj And)))
+(assert! (rule (conj and)))
+(assert! (rule (N+V Twas)))
+(assert! (rule (art the)))
+(assert! (rule (aux Did)))
+(assert! (rule (prep in)))
+
+(assert! (rule (noun (?x . ?z) ?z (noun ?x)) (noun ?x)))
+(assert! (rule (verb (?x . ?z) ?z (verb ?x)) (verb ?x)))
+(assert! (rule (inverb (?x . ?z) ?z (inverb ?x)) (inverb ?x)))
+(assert! (rule (adj (?x . ?z) ?z (adj ?x)) (adj ?x)))
+(assert! (rule (adv (?x . ?z) ?z (adv ?x)) (adv ?x)))
+(assert! (rule (conj (?x . ?z) ?z (conj ?x)) (conj ?x)))
+(assert! (rule (N+V (?x . ?z) ?z (N+V ?x)) (N+V ?x)))
+(assert! (rule (art (?x . ?z) ?z (art ?x)) (art ?x)))
+(assert! (rule (aux (?x . ?z) ?z (aux ?x)) (aux ?x)))
+(assert! (rule (prep (?x . ?z) ?z (prep ?x)) (prep ?x)))
+
+(assert! (rule (np ?x ?z (np ?a ?b)) (and (art ?x ?y ?a) (ng ?y ?z ?b))))
+(assert! (rule (ng ?x ?z (ng ?a ?b)) (and (adj ?x ?y ?a) (noun ?y ?z ?b))))
+(assert! (rule (ng ?x ?y (ng ?a)) (noun ?x ?y ?a)))
+(assert! (rule (pp ?x ?z (pp ?a ?b)) (and (prep ?x ?y ?a) (np ?y ?z ?b))))
+(assert! (rule (preadj ?x ?z (preadj ?a ?b)) (and (adv ?x ?y ?a) (adj ?y ?z ?b))))
+(assert! (rule (verb+PP ?x ?z (verb+PP ?a ?b)) (and (verb ?x ?y ?a)(pp ?y ?z ?b))))
+(assert! (rule (vc ?x ?u (vc ?a ?b ?c)) (and (verb ?x ?y ?a) (conj ?y ?z ?b) (verb ?z ?u ?c))))
+(assert! (rule (vc ?x ?u (vc ?a ?b ?c)) (and (verb ?x ?y ?a) (conj ?y ?z ?b) (verb+PP ?z ?u ?c))))
+(assert! (rule (vg ?x ?u (vg ?a ?b ?c)) (and (aux ?x ?y ?a)(vc ?y ?z ?b)(pp ?z ?u ?c))))
+(assert! (rule (vg ?x ?z (vg ?a ?b)) (and (aux ?x ?y ?a) (vc ?y ?z ?b))))
+
+(assert! (rule (sent-conj ?x ?z (sent-conj ?a ?b)) (and (comma ?x ?y ?a) (conj ?y ?z ?b))))
+
+(assert! (rule (sent ?x ?z (sent ?a ?b))(and (N+V ?x ?y ?a) (adj ?y ?z ?b))))
+(assert! (rule (sent ?x ?z (sent ?a ?b))(and (np ?x ?y ?a) (vg ?y ?z ?b))))
+(assert! (rule (sent ?x ?u (sent ?a ?b ?c)) (and (preadj ?x ?y ?a)(inverb ?y ?z ?b)(np ?z ?u ?c))))
+(assert! (rule (sent ?x ?z (sent ?a ?b)) (and (np ?x ?y ?a) (verb ?y ?z ?b))))
+
+(assert! (rule (sent4 ?input ?o (sent4 ?a ?b ?c ?d ?e ?f ?g ?h))
+  (and (sent ?input ?x ?a) (sent-conj ?x ?y ?b) (sent ?y ?z ?c) (semicolon ?z ?u ?d)
+    (sent ?u ?v ?e) (sent-conj ?v ?w ?f) (sent ?w ?r ?g) (period ?r ?o ?h))))
+
+(sent4 (Twas brillig <comma> and the slithy toves
+  Did gyre and gimble in the wabe <semicolon>
+  All mimsy were the borogoves <comma>
+  And the mome raths outgrabe <period>) () ?answer)
+
+(sent4 (Twas brillig <comma> and the slithy borogoves
+  Did gimble and gyre in the wabe <semicolon>
+  All brillig were the raths <comma>
+  And the mome toves outgrabe <period>) () ?answer)
+
+ ;;; Query input:
+(sent4 (Twas brillig <comma> and the slithy toves
+  Did gyre and gimble in the wabe <semicolon>
+  All mimsy were the borogoves <comma>
+  And the mome raths outgrabe <period>) () ?answer)
+
+;;; Query results:
+(sent4 (Twas brillig <comma> and the slithy toves Did gyre and gimble in the wabe <semicolon> All mimsy were the borogoves <comma> And the mome raths outgrabe <period>) () (sent4 (sent (N+V Twas) (adj brillig)) (sent-conj (comma <comma>) (conj and)) (sent (np (art the) (ng (adj slithy) (noun toves))) (vg (aux Did) (vc (verb gyre) (conj and) (verb+PP (verb gimble) (pp (prep in) (np (art the) (ng (noun wabe)))))))) (semicolon <semicolon>) (sent (preadj (adv All) (adj mimsy)) (inverb were) (np (art the) (ng (noun borogoves)))) (sent-conj (comma <comma>) (conj And)) (sent (np (art the) (ng (adj mome) (noun raths))) (verb outgrabe)) (period <period>)))
+(sent4 (Twas brillig <comma> and the slithy toves Did gyre and gimble in the wabe <semicolon> All mimsy were the borogoves <comma> And the mome raths outgrabe <period>) () (sent4 (sent (N+V Twas) (adj brillig)) (sent-conj (comma <comma>) (conj and)) (sent (np (art the) (ng (adj slithy) (noun toves))) (vg (aux Did) (vc (verb gyre) (conj and) (verb gimble)) (pp (prep in) (np (art the) (ng (noun wabe)))))) (semicolon <semicolon>) (sent (preadj (adv All) (adj mimsy)) (inverb were) (np (art the) (ng (noun borogoves)))) (sent-conj (comma <comma>) (conj And)) (sent (np (art the) (ng (adj mome) (noun raths))) (verb outgrabe)) (period <period>)))
+
+;;; Query input:
+(sent4 (Twas brillig <comma> and the slithy borogoves
+  Did gimble and gyre in the wabe <semicolon>
+  All brillig were the raths <comma>
+  And the mome toves outgrabe <period>) () ?answer)
+
+;;; Query results:
+(sent4 (Twas brillig <comma> and the slithy borogoves Did gimble and gyre in the wabe <semicolon> All brillig were the raths <comma> And the mome toves outgrabe <period>) () (sent4 (sent (N+V Twas) (adj brillig)) (sent-conj (comma <comma>) (conj and)) (sent (np (art the) (ng (adj slithy) (noun borogoves))) (vg (aux Did) (vc (verb gimble) (conj and) (verb+PP (verb gyre) (pp (prep in) (np (art the) (ng (noun wabe)))))))) (semicolon <semicolon>) (sent (preadj (adv All) (adj brillig)) (inverb were) (np (art the) (ng (noun raths)))) (sent-conj (comma <comma>) (conj And)) (sent (np (art the) (ng (adj mome) (noun toves))) (verb outgrabe)) (period <period>)))
+(sent4 (Twas brillig <comma> and the slithy borogoves Did gimble and gyre in the wabe <semicolon> All brillig were the raths <comma> And the mome toves outgrabe <period>) () (sent4 (sent (N+V Twas) (adj brillig)) (sent-conj (comma <comma>) (conj and)) (sent (np (art the) (ng (adj slithy) (noun borogoves))) (vg (aux Did) (vc (verb gimble) (conj and) (verb gyre)) (pp (prep in) (np (art the) (ng (noun wabe)))))) (semicolon <semicolon>) (sent (preadj (adv All) (adj brillig)) (inverb were) (np (art the) (ng (noun raths)))) (sent-conj (comma <comma>) (conj And)) (sent (np (art the) (ng (adj mome) (noun toves))) (verb outgrabe)) (period <period>)))

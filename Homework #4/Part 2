@@ -1,0 +1,116 @@
+2.
+
+	4.5.5
+
+		(a.) all people supervised by Ben Bitdiddle.
+
+		;;; Query input:
+		(supervisor ?x (Bitdiddle Ben))
+
+		;;; Query results:
+		(supervisor (Tweakit Lem E) (Bitdiddle Ben))
+		(supervisor (Fect Cy D) (Bitdiddle Ben))
+		(supervisor (Hacker Alyssa P) (Bitdiddle Ben))
+
+		(b.) the names and jobs of all the people in accounting division.
+
+		;;; Query input:
+		(job ?x (accounting . ?z))
+
+		;;; Query results:
+		(job (Cratchet Robert) (accounting scrivener))
+		(job (Scrooge Eben) (accounting chief accountant))
+
+		(c.)  names and addresses of all people who live in Slumberville
+
+		;;; Query input:
+		(address ?x (Slumerville . ?y))
+
+		;;; Query results:
+		(address (Aull DeWitt) (Slumerville (Onion Square) 5))
+		(address (Reasoner Louis) (Slumerville (Pine Tree Road) 80))
+		(address (Bitdiddle Ben) (Slumerville (Ridge Road) 10))
+
+	4.5.6
+
+		(a.) the names of all people who are supervised by Ben Bitdiddle and their addresses.
+
+		;;; Query input:
+		(and (supervisor ?x (Bitdiddle Ben)) (address ?x ?y))
+
+		;;; Query results:
+		(and (supervisor (Tweakit Lem E) (Bitdiddle Ben)) (address (Tweakit Lem E) (Boston (Bay State Road) 22)))
+		(and (supervisor (Fect Cy D) (Bitdiddle Ben)) (address (Fect Cy D) (Cambridge (Ames Street) 3)))
+		(and (supervisor (Hacker Alyssa P) (Bitdiddle Ben)) (address (Hacker Alyssa P) (Cambridge (Mass Ave) 78)))
+
+		(b.) all people whose salary is less than Ben Bitdiddle's and Ben Bitdiddle's salary
+
+		(and (salary ?p ?p-salary) (salary (Bitdiddle Ben) ?Ben-salary)  (lisp-value < ?p-salary ?Ben-salary))
+
+		;;; Query input:
+		(and (salary ?p ?p-salary) (salary (Bitdiddle Ben) ?Ben-salary)  (lisp-value < ?p-salary ?Ben-salary))
+
+		;;; Query results:
+		(and (salary (Aull DeWitt) 25000) (salary (Bitdiddle Ben) 60000) (lisp-value < 25000 60000))
+		(and (salary (Cratchet Robert) 18000) (salary (Bitdiddle Ben) 60000) (lisp-value < 18000 60000))
+		(and (salary (Reasoner Louis) 30000) (salary (Bitdiddle Ben) 60000) (lisp-value < 30000 60000))
+		(and (salary (Tweakit Lem E) 25000) (salary (Bitdiddle Ben) 60000) (lisp-value < 25000 60000))
+		(and (salary (Fect Cy D) 35000) (salary (Bitdiddle Ben) 60000) (lisp-value < 35000 60000))
+		(and (salary (Hacker Alyssa P) 40000) (salary (Bitdiddle Ben) 60000) (lisp-value < 40000 60000))
+
+		(c.) all people who are supervised by someone who is not in the computer division and their supervisor's name and job.
+
+		(and (supervisor ?emp ?sup) (job ?sup ?x) (not (job ?sup (computer . ?y))))
+
+		;;; Query input:
+		(and (supervisor ?emp ?sup) (job ?sup ?x) (not (job ?sup (computer . ?y))))
+
+		;;; Query results:
+		(and (supervisor (Aull DeWitt) (Warbucks Oliver)) (job (Warbucks Oliver) (administration big wheel)) (not (job (Warbucks Oliver) (computer . ?y))))
+		(and (supervisor (Cratchet Robert) (Scrooge Eben)) (job (Scrooge Eben) (accounting chief accountant)) (not (job (Scrooge Eben) (computer . ?y))))
+		(and (supervisor (Scrooge Eben) (Warbucks Oliver)) (job (Warbucks Oliver) (administration big wheel)) (not (job (Warbucks Oliver) (computer . ?y))))
+		(and (supervisor (Bitdiddle Ben) (Warbucks Oliver)) (job (Warbucks Oliver) (administration big wheel)) (not (job (Warbucks Oliver) (computer . ?y))))
+
+	4.5.7
+
+		Define a rule that says that person 1 can replace person 2 if either person 1 does the same job as person 2 or someone who does person 1's job can do person 2's job and if person 1 and person 2 are not the same person.  Using your rule, give queries that find the following:
+
+			(assert!
+				(rule (replaces ?person-1 ?person-2)
+					(and (job ?person-1 ?title-1)
+						(job ?person-2 ?title-2)
+						(or (same ?title-1 ?title-2)
+							(can-do-job ?title-1 ?title-2))
+						(not (same ?person-1 ?person-2)))))
+
+		;;; Query input:
+		(assert! (rule (replaces ?person-1 ?person-2) (and (job ?person-1 ?title-1) (job ?person-2 ?title-2) (or (same ?title-1 ?title-2) (can-do-job ?title-1 ?title-2)) (not (same ?person-1 ?person-2)))))
+
+		Assertion added to data base.
+
+        (a.) all people who can repalce Cy D Fect.
+
+        (replaces ?x (Fect Cy D))
+
+        ;;; Query input:
+		(assert! (rule (replaces ?person-1 ?person-2) (and (job ?person-1 ?title-1) (job ?person-2 ?title-2) (or (same ?title-1 ?title-2) (can-do-job ?title-1 ?title-2)) (not (same ?person-1 ?person-2)))))
+
+		Assertion added to data base.
+
+		;;; Query input:
+		(replaces ?x (Fect Cy D))
+
+		;;; Query results:
+		(replaces (Bitdiddle Ben) (Fect Cy D))
+		(replaces (Hacker Alyssa P) (Fect Cy D))
+
+		(b.) all people who can replace someone who is beign paid more than they are and the two salaries
+
+		(and (replaces ?low ?high) (salary ?low ?l-sal) (salary ?high ?h-sal) (lisp-value < ?l-sal ?h-sal))
+
+		;;; Query input:
+		(and (replaces ?low ?high) (salary ?low ?l-sal) (salary ?high ?h-sal) (lisp-value < ?l-sal ?h-sal))
+
+		;;; Query results:
+		(and (replaces (Aull DeWitt) (Warbucks Oliver)) (salary (Aull DeWitt) 25000) (salary (Warbucks Oliver) 150000) (lisp-value < 25000 150000))
+		(and (replaces (Fect Cy D) (Hacker Alyssa P)) (salary (Fect Cy D) 35000) (salary (Hacker Alyssa P) 40000) (lisp-value < 35000 40000))

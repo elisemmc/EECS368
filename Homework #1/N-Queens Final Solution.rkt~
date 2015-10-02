@@ -1,0 +1,78 @@
+#lang racket
+
+; 1.) Enumerate Interval
+;enumerates interval from 'low' to 'high' and returns it as a list
+(define (enumerate-interval low high)
+  (cond [(>= high low) (cons low (enumerate-interval (+ low 1) high))]
+        [else '()]
+  )
+)
+
+; 2.) iPerm
+;gives all permutations of an inputted list
+(define (iperm L A)
+  (cond 
+    [(null? L) (list A)] 
+    [else (append-map (lambda (x) (iperm (remove x L) (cons x A))) L)]
+  )
+)
+
+; 3.) Diagonal Checker
+;checks that number being added to the car of the list does not intersect with diagonals of the existing values
+;diagcheck runs and has and extra value D that keeps track of how far the value we're checking is from the beginning of the list
+(define (diagcheck col A D)
+  (cond
+    [(null? A) #f]
+    [(= col (- (first A) D)) #t]
+    [(= col (+ (first A) D)) #t]
+    [else (diagcheck col (cdr A) (+ D 1))]
+  )
+)
+;runs diagcheck with the initial input for D as 1
+(define (diag? col A)
+  (diagcheck col A 1)
+)
+  
+; 4.) Queens
+;gives the possibe solutions for the n-queens program and outputs a list of lists of those results
+#|
+trial and error
+
+(define (iqueens-inner L A)
+  (cond 
+    [(null? L) (list A)] 
+    [else (append-map (lambda (x) (iqueens-inner (remove x L) (cond
+                                                                 [(diag? x A) null]
+                                                                 [else (cons x A)]
+                                                              ))) L)
+    ]
+  )
+)
+
+;removes all the extra crap that i get out of putting my conditional at the end, my conditional returns lots of short lists as well
+(define (iqueensx L A)
+  (filter (lambda(x)(= (length L) (length x))) (iqueens-inner L A))
+)
+|#
+
+(define (iqueens L A)
+  (cond 
+    [(null? L) (list A)] 
+    [else (append-map (lambda (x) (cond [(diag? x A) '()]
+                                        [else (iqueens (remove x L) (cons x A))]
+                                  ))L)]))
+
+
+; 5:) Q
+;takes an input n and runs iqueens for a board of size N x N without having to manually type out the list or input the null string
+(define (q n)
+  (iqueens (enumerate-interval 1 n) '())
+)
+
+; 6:) test program
+;takes input n and will run Q for inputs 0 through n and return the number of possible arrangements of queens on each size of board up to N x N
+;outputs the results as a list of '((size-of-board number-of-possible-arrangements)(s.o.b. n.o.p.a.)....)
+(define (test n)
+  (map [lambda(x) (list x (length (q x)))] (enumerate-interval 0 n))
+)
+                  
